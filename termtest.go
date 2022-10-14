@@ -147,7 +147,19 @@ func main() {
 			rooms[ry] = append(rooms[ry], newtile)
 		}
 	}
-	
+	//initialize screen
+	for ry := range rooms {
+		for rx := range rooms[ry] {
+			termbox.SetCell(rx, ry, rooms[ry][rx].Icon, fg, bg)
+		}
+	}
+	termbox.SetCell(yourchar.X, yourchar.Y, '@', fg, bg)
+	for _, i := range boxes {
+		termbox.SetCell(i.X, i.Y, 'O', fg, bg)
+	}
+	Tbprintf(0, 14, fg, bg, "Number of steps taken: %d", stepct)
+	termbox.Flush()
+	//main loop
 	for happen {
 		for ry := range rooms {
 			for rx := range rooms[ry] {
