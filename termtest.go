@@ -75,8 +75,8 @@ func Boxcheck(x, y int, dir rune, b *[]Block, r [][]Tile) bool {
 				if j.X == nx && j.Y == ny { //there's a box behind the box
 					canmove = false
 				}
-				if r[ny][nx].Walkable != true {
-					if r[ny][nx].Pit == false {
+				if !r[ny][nx].Walkable {
+					if !r[ny][nx].Pit {
 						canmove = false
 					} else {
 						*b = append((*b)[:k], (*b)[k + 1:]...)
@@ -87,7 +87,7 @@ func Boxcheck(x, y int, dir rune, b *[]Block, r [][]Tile) bool {
 					}
 				}
 			}
-			if canmove == true && fell == false{
+			if canmove && !fell{
 				(*b)[k].X = nx
 				(*b)[k].Y = ny
 			}
