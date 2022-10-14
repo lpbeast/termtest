@@ -9,6 +9,7 @@ import (
 type Tile struct {
 	Icon rune
 	Walkable bool
+	Pit bool
 }
 
 type Block struct {
@@ -20,7 +21,7 @@ type Player struct {
 }
 
 func Tbprintf(x, y int, fg, bg termbox.Attribute, s string, a ...any) {
-	compos := fmt.Sprintf(s, a)
+	compos := fmt.Sprintf(s, a...)
 	for i := 0; i < len(compos); i++{
 		r := rune(compos[i])
 		termbox.SetCell(x + i, y, r, fg, bg)
@@ -74,7 +75,14 @@ func Boxcheck(x, y int, dir rune, b *[]Block, r [][]Tile) bool {
 					canmove = false
 				}
 				if r[ny][nx].Walkable != true {
-					canmove = false
+					if r[ny][nx].Pit == false {
+						canmove = false
+					} else {
+						*b = append((*b)[:k], (*b)[k + 1:]...)
+						r[ny][nx].Pit = false
+						r[ny][nx].Walkable = true
+						r[ny][nx].Icon = '.'
+					}
 				}
 			}
 			if canmove {
@@ -113,9 +121,9 @@ func main() {
 	
 	roommap = append(roommap, []rune("##############"))
 	roommap = append(roommap, []rune("#...#........#"))
-	roommap = append(roommap, []rune("#...#.O..#####"))
+	roommap = append(roommap, []rune("#...#.O_..####"))
 	roommap = append(roommap, []rune("#...#........#"))
-	roommap = append(roommap, []rune("#..######.O..#"))
+	roommap = append(roommap, []rune("#..#####..O..#"))
 	roommap = append(roommap, []rune("#............#"))
 	roommap = append(roommap, []rune("####.###O##..#"))
 	roommap = append(roommap, []rune("#........#...#"))
@@ -131,17 +139,23 @@ func main() {
 	for ry := range roommap {
 		for rx := range roommap[ry] {
 			var newtile Tile
+			newtile.Pit = false
 			newtile.Icon = roommap[ry][rx]
 			if newtile.Icon == '#' {
 				newtile.Walkable = false
 			} else { 
-				newtile.Walkable = true
-				if newtile.Icon == 'O' {
-					newtile.Icon = '.'
-					var b Block
-					b.X = rx
-					b.Y = ry
-					boxes = append(boxes, b)
+				if newtile.Icon == '_' {
+					newtile.Walkable = false
+					newtile.Pit = true
+				} else {
+					newtile.Walkable = true
+					if newtile.Icon == 'O' {
+						newtile.Icon = '.'
+						var b Block
+						b.X = rx
+						b.Y = ry
+						boxes = append(boxes, b)
+					}
 				}
 			}
 			rooms[ry] = append(rooms[ry], newtile)
